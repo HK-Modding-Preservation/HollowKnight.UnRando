@@ -1,0 +1,6 @@
+Randomizer 4
+PurenailCore
+MenuChanger
+RandomizerCore
+RandoSettingsManager
+ItemChanger

@@ -20,5 +20,5 @@ internal class MultiUIDef : UIDef
 
     public override Sprite GetSprite() => uiDefs[0].GetSprite();
 
-    public override void SendMessage(MessageType type, Action? callback = null) => uiDefs[0].SendMessage(type, callback);
+    public override void SendMessage(MessageType type, Action? callback = null) => throw new InvalidOperationException("Not supported on MultiUIDef");
 }

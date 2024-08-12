@@ -57,6 +57,7 @@ internal class RequestModifier
                 {
                     Shuffler<int> newShuffler = new();
                     for (int i = 0; i < totalHolder[0]; i++) newShuffler.Add(i);
+                    shufflerHolder.Add(newShuffler);
                 }
                 var shuffler = shufflerHolder[0];
 

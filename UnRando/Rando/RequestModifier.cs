@@ -13,6 +13,7 @@ internal class RequestModifier
     private static Dictionary<string, (int, int)> GEO_COSTS = new()
     {
         ["Iselda"] = (100, 200),
+        ["Leg_Eater"] = (200, 300),
         ["Salubra"] = (100, 300),
         ["Salubra_(Requires_Charms)"] = (250, 450),
         ["Sly"] = (150, 350),
@@ -22,7 +23,8 @@ internal class RequestModifier
     private static Dictionary<string, int> SHOP_COUNTS = new()
     {
         ["Iselda"] = 1,
-        ["Salubra"] = 1,
+        ["Leg_Eater"] = 2,
+        ["Salubra"] = 2,
         ["Salubra_(Requires_Charms)"] = 2,
         ["Sly"] = 2,
         ["Sly_(Key)"] = 2,

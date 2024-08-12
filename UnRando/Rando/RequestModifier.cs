@@ -46,16 +46,25 @@ internal class RequestModifier
         if (!RandoInterop.IsEnabled) return;
 
         List<int> totalHolder = [0];
+        List<Shuffler<int>> shufflerHolder = [];
         System.Random r = new(rb.gs.Seed + 9187);
+
         foreach (var igb in rb.EnumerateItemGroups())
         {
             igb.LocationPadder = (factory, count) =>
             {
+                if (shufflerHolder.Count == 0)
+                {
+                    Shuffler<int> newShuffler = new();
+                    for (int i = 0; i < totalHolder[0]; i++) newShuffler.Add(i);
+                }
+                var shuffler = shufflerHolder[0];
+
                 List<IRandoLocation> locs = [];
                 for (int i = 0; i < count; i++)
                 {
-                    int randomSlot = r.Next(totalHolder[0]) + 1;
-                    UnRandoLocation loc = new(randomSlot);
+                    int slot = shuffler.Take(r) + 1;
+                    UnRandoLocation loc = new(slot);
                     locs.Add(factory.MakeLocation(loc.name));
                 }
                 return locs;

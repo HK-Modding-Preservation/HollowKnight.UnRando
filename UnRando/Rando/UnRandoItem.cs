@@ -32,7 +32,8 @@ internal class UnRandoCheck : AbstractItem
     public override void GiveImmediate(GiveInfo info)
     {
         var p = GetRealPlacement(true);
-        ItemUtility.GiveSequentially(p?.Items ?? [LumaflyEscape()], p, info);
+        var callback = info.Callback;
+        ItemUtility.GiveSequentially(p?.Items ?? [LumaflyEscape()], p, info, () => callback?.Invoke(this));
 
         // Null out the callback to prevent early control.
         UIDef = null;

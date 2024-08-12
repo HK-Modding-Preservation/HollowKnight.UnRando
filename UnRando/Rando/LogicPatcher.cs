@@ -2,6 +2,7 @@
 using RandomizerCore.LogicItems;
 using RandomizerMod.RC;
 using RandomizerMod.Settings;
+using System.Linq;
 
 namespace UnRando.Rando;
 
@@ -31,16 +32,9 @@ internal class LogicPatcher
         var checkCount = lmb.GetOrAddTerm(UNRANDO_CHECK_COUNT, TermType.Int);
         lmb.AddItem(new CappedItem(nameof(UnRandoCheck), [new(checkCount, 1)], new(checkCount, int.MaxValue)));
 
-        int locs = 0;
-        foreach (var key in lmb.LogicLookup.Keys)
-        {
-            if (key.Contains("[") || lmb.Waypoints.Contains(key)) continue;
-            ++locs;
-        }
-
         // We have to guess the location count, since logic must be finalized before placements.
-        int locsNeeded = (int)(locs * 1.05f) + 100;
-        for (int i = 0; i < locsNeeded; i++)
+        int locsEstimate = (int)(lmb.LogicLookup.Keys.Where(k => !k.Contains("[") && !lmb.Waypoints.Contains(k)).Count() * 1.05f) + 100;
+        for (int i = 0; i < locsEstimate; i++)
         {
             UnRandoLocation loc = new(i + 1);
             lmb.AddLogicDef(new(loc.name, $"{UNRANDO_CHECK_COUNT} > {i}"));

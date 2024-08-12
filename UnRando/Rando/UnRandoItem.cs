@@ -1,5 +1,5 @@
 ﻿using ItemChanger;
-using ItemChanger.UIDefs;
+using ItemChanger.Util;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -22,30 +22,28 @@ internal class UnRandoCheck : AbstractItem
 
     public override bool GiveEarly(string containerType) => GetRealPlacement(false)?.Items.Any(i => i.GiveEarly(containerType)) ?? false;
 
+    private static AbstractItem? _LumaflyEscape = null;
+    private static AbstractItem LumaflyEscape()
+    {
+        _LumaflyEscape ??= Finder.GetItem("Lumafly_Escape")!;
+        return _LumaflyEscape;
+    }
+
     public override void GiveImmediate(GiveInfo info)
     {
         var p = GetRealPlacement(true);
-        GiveInfo delegateInfo = new()
-        {
-            Container = info.Container,
-            FlingType = info.FlingType,
-            MessageType = info.MessageType,
-            Transform = info.Transform,
-        };
+        ItemUtility.GiveSequentially(p?.Items ?? [LumaflyEscape()], p, info);
 
-        if (p != null) foreach (var item in p.Items) item.Give(p, delegateInfo);
-        else Finder.GetItem("Lumafly_Escape")!.Give(p, delegateInfo);
-
+        // Null out the callback to prevent early control.
         UIDef = null;
+        info.Callback = null;
     }
 
     public override void ResolveItem(GiveEventArgs args)
     {
         args.Item = this;
 
-        List<string> previewStrings = [];
         var p = GetRealPlacement(false);
-
         List<UIDef> uiDefs = [];
         if (p != null)
         {
@@ -56,15 +54,7 @@ internal class UnRandoCheck : AbstractItem
                 uiDefs.Add(delegateArgs.Item!.UIDef!);
             }
         }
-        else
-        {
-            uiDefs.Add(new MsgUIDef()
-            {
-                name = new BoxedString("Something!"),
-                shopDesc = new BoxedString("The rando must go on"),
-                sprite = new BoxedSprite(Finder.GetItem("Lumafly_Escape")!.GetPreviewSprite()!)
-            });
-        }
+        else uiDefs.Add(LumaflyEscape().GetResolvedUIDef()!);
 
         UIDef = new MultiUIDef(uiDefs);
     }

@@ -12,10 +12,20 @@ internal class RequestModifier
 
     private static Dictionary<string, (int, int)> GEO_COSTS = new()
     {
-        ["Iselda"] = (25, 75),
-        ["Salubra"] = (75, 150),
-        ["Sly"] = (50, 100),
-        ["Sly_(Key)"] = (150, 250),
+        ["Iselda"] = (100, 200),
+        ["Salubra"] = (100, 300),
+        ["Salubra_(Requires_Charms)"] = (250, 450),
+        ["Sly"] = (150, 350),
+        ["Sly_(Key)"] = (350, 600),
+    };
+
+    private static Dictionary<string, int> SHOP_COUNTS = new()
+    {
+        ["Iselda"] = 1,
+        ["Salubra"] = 1,
+        ["Salubra_(Requires_Charms)"] = 2,
+        ["Sly"] = 2,
+        ["Sly_(Key)"] = 2,
     };
 
     private static CostDef[]? GetVanillaCosts(RequestBuilder rb, string loc, System.Random r)
@@ -27,8 +37,6 @@ internal class RequestModifier
         }
 
         return [];
-        // if (rb.Vanilla.TryGetValue(loc, out var defs) && defs.Count == 1 && defs[0].Costs != null && defs[0].Costs!.Length > 0) return defs[0].Costs!;
-        // else return null;
     }
 
     private static void UnRando(RequestBuilder rb)
@@ -58,8 +66,9 @@ internal class RequestModifier
                 if (loc == "Start") continue;
 
                 var count = igb.Locations.GetCount(loc);
-                subTotal += count;
+                if (SHOP_COUNTS.TryGetValue(loc, out var overrideCount)) count = System.Math.Min(count, overrideCount);
 
+                subTotal += count;
                 for (int i = 0; i < count; i++) rb.AddToPreplaced(new VanillaDef(nameof(UnRandoCheck), loc, GetVanillaCosts(rb, loc, r)));
                 toRemove.Add(loc);
             }

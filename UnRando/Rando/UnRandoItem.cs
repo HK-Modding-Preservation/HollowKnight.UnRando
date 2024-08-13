@@ -38,18 +38,19 @@ internal class UnRandoCheck : AbstractItem
 
     public override bool GiveEarly(string containerType) => GetRealPlacement(false)?.Items.Any(i => i.GiveEarly(containerType)) ?? false;
 
-    private static AbstractItem LumaflyEscape() => Finder.GetItem("Lumafly_Escape")!;
+    private static AbstractItem Nothing() => Finder.GetItem("Lumafly_Escape")!;
 
     public override void GiveImmediate(GiveInfo info)
     {
         var p = GetRealPlacement(true);
         var callback = info.Callback;
-        List<AbstractItem> items = new(p?.Items ?? [LumaflyEscape()]);
 
         var checkPlacement = ItemChanger.Internal.Ref.Settings.Placements[GetTag<UnRandoPlacementTag>()!.PlacementName!];
         var scene = (checkPlacement as IPrimaryLocationPlacement)?.Location.sceneName;
 
         // Place refillables on location.
+        List<AbstractItem> items = new(p?.Items ?? [Nothing()]);
+        List<AbstractItem> toInsert = [];
         foreach (var item in items)
         {
             if (scene != null)
@@ -65,11 +66,15 @@ internal class UnRandoCheck : AbstractItem
                 // Place a pre-obtained copy of this item at this location.
                 var clone = item.Clone();
                 clone.SetObtained();
-                checkPlacement.Items.Insert(0, item);
+                toInsert.Add(clone);
             }
         }
 
-        ItemUtility.GiveSequentially(items, p, info, () => callback?.Invoke(this));
+        ItemUtility.GiveSequentially(items, p, info, () =>
+        {
+            callback?.Invoke(this);
+            checkPlacement.Items.InsertRange(0, toInsert);
+        });
 
         // Null out the callback to prevent early control.
         UIDef = null;
@@ -91,7 +96,7 @@ internal class UnRandoCheck : AbstractItem
                 uiDefs.Add(delegateArgs.Item!.UIDef!);
             }
         }
-        else uiDefs.Add(LumaflyEscape().GetResolvedUIDef()!);
+        else uiDefs.Add(Nothing().GetResolvedUIDef()!);
 
         UIDef = new MultiUIDef(uiDefs);
     }

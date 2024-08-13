@@ -17,7 +17,7 @@ internal class UnRandoCheck : AbstractItem
 
         int checksRequired = forReal ? ++mod.ChecksObtained : (mod.ChecksObtained + 1);
         UnRandoLocation loc = new(checksRequired);
-        return ItemChangerMod.GetPlacement(loc.name);
+        return ItemChanger.Internal.Ref.Settings.Placements[loc.name];
     }
 
     public override bool GiveEarly(string containerType) => GetRealPlacement(false)?.Items.Any(i => i.GiveEarly(containerType)) ?? false;

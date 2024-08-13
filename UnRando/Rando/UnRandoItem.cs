@@ -48,7 +48,7 @@ internal class UnRandoCheck : AbstractItem
                 // Place a pre-obtained copy of this item at this location.
                 var clone = item.Clone();
                 clone.SetObtained();
-                checkPlacement.Add(clone);
+                checkPlacement.Items.Insert(0, item);
             }
         }
 

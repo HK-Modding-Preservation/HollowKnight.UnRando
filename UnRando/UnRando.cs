@@ -5,7 +5,7 @@ namespace UnRando;
 
 public class UnRando : Mod, IGlobalSettings<GlobalSettings>
 {
-    public static UnRando Instance { get; private set; }
+    public static UnRando? Instance { get; private set; }
 
     public static GlobalSettings GS { get; private set; } = new();
 
@@ -22,5 +22,5 @@ public class UnRando : Mod, IGlobalSettings<GlobalSettings>
 
     public GlobalSettings OnSaveGlobal() => GS ?? new();
 
-    public static new void Log(string msg) => ((ILogger)Instance).Log(msg);
+    public static new void Log(string msg) => ((ILogger)Instance!).Log(msg);
 }

@@ -14,7 +14,7 @@ namespace UnRando.Rando;
 
 internal class ConnectionMenu
 {
-    internal static ConnectionMenu Instance { get; private set; }
+    internal static ConnectionMenu? Instance { get; private set; }
 
     internal static void Setup()
     {
@@ -30,14 +30,14 @@ internal class ConnectionMenu
 
     private static bool TryGetMenuButton(MenuPage page, out SmallButton button)
     {
-        button = Instance.entryButton;
+        button = Instance!.entryButton;
         return true;
     }
 
     private SmallButton entryButton;
     private MenuElementFactory<RandomizationSettings> factory;
     private MenuItem<bool> enableSettings;
-    private List<MenuItem<ProgressSetting>> progressionSettings = [];
+    private List<MenuItem<ProgressionSetting>> progressionSettings = [];
 
     private RandomizationSettings Settings => UnRando.GS.RandoSettings;
 
@@ -48,10 +48,13 @@ internal class ConnectionMenu
         entryButton.AddHideAndShowEvent(unRandoPage);
 
         factory = new(unRandoPage, Settings);
-        enableSettings = factory.ElementLookup[nameof(RandomizationSettings.Enabled)] as MenuItem<bool>;
+        enableSettings = (factory.ElementLookup[nameof(RandomizationSettings.Enabled)] as MenuItem<bool>)!;
         enableSettings.OnClick += UpdateUI;
 
-        factory.ElementLookup.Values.Select(v => v as MenuItem<ProgressSetting>).Where(v => v != null).ForEach(progressionSettings.Add);
+        factory.ElementLookup.Values.ForEach(v =>
+        {
+            if (v is MenuItem<ProgressionSetting> typed) progressionSettings.Add(typed);
+        });
 
         List<IMenuElement> children = [enableSettings];
         progressionSettings.ForEach(children.Add);

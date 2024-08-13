@@ -1,19 +1,41 @@
-﻿namespace UnRando.Rando;
+﻿using System.Collections.Generic;
 
-public enum ProgressSetting
+namespace UnRando.Rando;
+
+public enum ProgressionSetting
 {
-    Early,
     Random,
+    Early,
+    Average,
     Late,
     VeryLate,
+}
+
+internal enum RandoProgressionType
+{
+    Dash,
+    Claw,
+    CDash,
+    Wings,
 }
 
 public class RandomizationSettings
 {
     public bool Enabled = false;
-    public ProgressSetting DashProgression = ProgressSetting.Random;
-    public ProgressSetting ClawProgression = ProgressSetting.Random;
-    public ProgressSetting CDashProgression = ProgressSetting.Random;
-    public ProgressSetting WingsProgression = ProgressSetting.Random;
-    public ProgressSetting SpellProgression = ProgressSetting.Random;
+
+    public ProgressionSetting DashProgression = ProgressionSetting.Random;
+    public ProgressionSetting ClawProgression = ProgressionSetting.Random;
+    public ProgressionSetting CDashProgression = ProgressionSetting.Random;
+    public ProgressionSetting WingsProgression = ProgressionSetting.Random;
+
+    internal Dictionary<RandoProgressionType, ProgressionSetting> ProgressionDict()
+    {
+        return new()
+        {
+            { RandoProgressionType.Dash, DashProgression },
+            { RandoProgressionType.Claw, ClawProgression },
+            { RandoProgressionType.CDash, CDashProgression },
+            { RandoProgressionType.Wings, WingsProgression },
+        };
+    }
 }

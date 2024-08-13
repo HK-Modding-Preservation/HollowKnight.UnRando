@@ -12,8 +12,8 @@ internal class UnRandoLocation : AutoLocation
     {
         this.checksRequired = checksRequired;
 
-        this.name = $"UnRandoLocation-{checksRequired:D3}";
-        this.flingType = ItemChanger.FlingType.DirectDeposit;
+        name = $"UnRandoLocation-{checksRequired:D3}";
+        flingType = ItemChanger.FlingType.DirectDeposit;
     }
 
     internal void GetInfo(LocationRequestInfo info)

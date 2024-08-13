@@ -3,6 +3,7 @@ using ItemChanger.Placements;
 using ItemChanger.Tags;
 using ItemChanger.Util;
 using Modding;
+using Mono.Security.Protocol.Tls;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -54,6 +55,19 @@ internal class UnRandoCheck : AbstractItem
         recentItems.Properties.Add("DisplaySource", RecentItemsDisplay.AreaName.LocalizedCleanAreaName(scene));
     }
 
+    private static readonly List<string> RANDOM_PLACES = [
+        "somewhere",
+        "over there",
+        "thataway",
+        "thisaway",
+        "the store",
+        "somewhere else",
+        "anywhere",
+        "nowhere"
+    ];
+
+    private static string RandomPlace() => RANDOM_PLACES[UnityEngine.Random.Range(0, RANDOM_PLACES.Count)];
+
     public override void GiveImmediate(GiveInfo info)
     {
         var p = GetRealPlacement(true);
@@ -67,7 +81,7 @@ internal class UnRandoCheck : AbstractItem
         List<AbstractItem> toInsert = [];
         foreach (var item in items)
         {
-            if (scene != null && RecentItemsInstalled()) AddRecentItemsTag(item, scene);
+            if (RecentItemsInstalled()) AddRecentItemsTag(item, scene ?? RandomPlace());
 
             var tag = item.GetTag<PersistentItemTag>();
             if (tag != null && tag.Persistence == Persistence.SemiPersistent)

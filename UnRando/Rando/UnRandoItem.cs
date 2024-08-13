@@ -1,4 +1,5 @@
 ﻿using ItemChanger;
+using ItemChanger.Placements;
 using ItemChanger.Tags;
 using ItemChanger.Util;
 using System.Collections.Generic;
@@ -13,7 +14,15 @@ internal class UnRandoPlacementTag : Tag
 
 internal class UnRandoCheck : AbstractItem
 {
-    public UnRandoCheck() => name = nameof(UnRandoCheck);
+    public UnRandoCheck()
+    {
+        name = nameof(UnRandoCheck);
+
+        // Don't display un-rando checks.
+        var interop = AddTag<InteropTag>();
+        interop.Message = "RecentItems";
+        interop.Properties.Add("IgnoreItem", true);
+    }
 
     public override AbstractItem Clone() => new UnRandoCheck();
 
@@ -36,12 +45,19 @@ internal class UnRandoCheck : AbstractItem
         var callback = info.Callback;
         List<AbstractItem> items = new(p?.Items ?? [LumaflyEscape()]);
 
-        ItemUtility.GiveSequentially(items, p, info, () => callback?.Invoke(this));
+        var checkPlacement = ItemChanger.Internal.Ref.Settings.Placements[GetTag<UnRandoPlacementTag>()!.PlacementName!];
+        var scene = (checkPlacement as IPrimaryLocationPlacement)?.Location.sceneName;
 
         // Place refillables on location.
-        var checkPlacement = ItemChanger.Internal.Ref.Settings.Placements[GetTag<UnRandoPlacementTag>()!.PlacementName!];
         foreach (var item in items)
         {
+            if (scene != null)
+            {
+                var recentItems = item.AddTag<InteropTag>();
+                recentItems.Message = "RecentItems";
+                recentItems.Properties.Add("DisplaySource", scene);
+            }
+
             var tag = item.GetTag<PersistentItemTag>();
             if (tag != null && tag.Persistence == Persistence.SemiPersistent)
             {
@@ -51,6 +67,8 @@ internal class UnRandoCheck : AbstractItem
                 checkPlacement.Items.Insert(0, item);
             }
         }
+
+        ItemUtility.GiveSequentially(items, p, info, () => callback?.Invoke(this));
 
         // Null out the callback to prevent early control.
         UIDef = null;

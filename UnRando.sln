@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnRando", "UnRando.csproj", "{F79FB8EA-0700-4D36-814C-81D1C24BE218}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnRando", "UnRando\UnRando.csproj", "{F79FB8EA-0700-4D36-814C-81D1C24BE218}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{333FDE18-2EE2-4212-9817-998F578B480E}"
 	ProjectSection(SolutionItems) = preProject

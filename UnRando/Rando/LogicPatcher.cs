@@ -37,7 +37,7 @@ internal class LogicPatcher
         for (int i = 0; i < locsEstimate; i++)
         {
             UnRandoLocation loc = new(i + 1);
-            lmb.AddLogicDef(new(loc.name, $"{UNRANDO_CHECK_COUNT} > {i}"));
+            lmb.AddLogicDef(new(loc.name, $"{UNRANDO_CHECK_COUNT} > {i - 1}"));
         }
     }
 }

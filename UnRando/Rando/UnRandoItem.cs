@@ -1,9 +1,15 @@
 ﻿using ItemChanger;
+using ItemChanger.Tags;
 using ItemChanger.Util;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace UnRando.Rando;
+
+internal class UnRandoPlacementTag : Tag
+{
+    public string? PlacementName;
+}
 
 internal class UnRandoCheck : AbstractItem
 {
@@ -22,18 +28,29 @@ internal class UnRandoCheck : AbstractItem
 
     public override bool GiveEarly(string containerType) => GetRealPlacement(false)?.Items.Any(i => i.GiveEarly(containerType)) ?? false;
 
-    private static AbstractItem? _LumaflyEscape = null;
-    private static AbstractItem LumaflyEscape()
-    {
-        _LumaflyEscape ??= Finder.GetItem("Lumafly_Escape")!;
-        return _LumaflyEscape;
-    }
+    private static AbstractItem LumaflyEscape() => Finder.GetItem("Lumafly_Escape")!;
 
     public override void GiveImmediate(GiveInfo info)
     {
         var p = GetRealPlacement(true);
         var callback = info.Callback;
-        ItemUtility.GiveSequentially(p?.Items ?? [LumaflyEscape()], p, info, () => callback?.Invoke(this));
+        List<AbstractItem> items = new(p?.Items ?? [LumaflyEscape()]);
+
+        ItemUtility.GiveSequentially(items, p, info, () => callback?.Invoke(this));
+
+        // Place refillables on location.
+        var checkPlacement = ItemChanger.Internal.Ref.Settings.Placements[GetTag<UnRandoPlacementTag>()!.PlacementName!];
+        foreach (var item in items)
+        {
+            var tag = item.GetTag<PersistentItemTag>();
+            if (tag != null && tag.Persistence == Persistence.SemiPersistent)
+            {
+                // Place a pre-obtained copy of this item at this location.
+                var clone = item.Clone();
+                clone.SetObtained();
+                checkPlacement.Add(clone);
+            }
+        }
 
         // Null out the callback to prevent early control.
         UIDef = null;

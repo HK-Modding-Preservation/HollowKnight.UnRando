@@ -22,6 +22,13 @@ internal class RandoInterop
     private static void OnExportCompleted(RandoController rc)
     {
         if (!IsEnabled) return;
+
         ItemChangerMod.Modules.GetOrAdd<UnRandoModule>();
+
+        // Add placement tags to every unrando check.
+        foreach (var entry in ItemChanger.Internal.Ref.Settings.Placements)
+            foreach (var item in entry.Value.Items)
+                if (item is UnRandoCheck check)
+                    check.AddTag<UnRandoPlacementTag>().PlacementName = entry.Key;
     }
 }

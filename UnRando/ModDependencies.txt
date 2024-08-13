@@ -1,7 +1,7 @@
-Randomizer 4
-PurenailCore
-MenuChanger
-RandomizerCore
-RandoSettingsManager
 ItemChanger
+MenuChanger
+PurenailCore
+RandomizerCore
+Randomizer 4
+RandoSettingsManager
 RecentItemsDisplay

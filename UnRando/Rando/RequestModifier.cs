@@ -97,7 +97,7 @@ internal class RequestModifier
 {
     internal static void Setup() => RequestBuilder.OnUpdate.Subscribe(1000f, ApplyUnRando);
 
-    private static Dictionary<RandoProgressionType, ProgressionData> PROGRESSION_DATA = new()
+    private static readonly Dictionary<RandoProgressionType, ProgressionData> PROGRESSION_DATA = new()
     {
         [RandoProgressionType.Dash] = new(["Mothwing_Cloak"], ["Left_Mothwing_Cloak", "Right_Mothwing_Cloak"], new(0, 0.15f, 0, 0.35f), new(0.1f, 0.2f, 0.1f, 0.3f), new(0.35f, 0.5f, 0.3f, 0.55f), new(0.65f, 0.85f, 0.6f, 0.9f)),
         [RandoProgressionType.Claw] = new(["Mantis_Claw"], ["Left_Mantis_Claw", "Right_Mantis_Claw"], new(0.05f, 0.2f, 0.05f, 0.4f), new(0.15f, 0.3f, 0.1f, 0.5f), new(0.5f, 0.7f, 0.4f, 0.75f), new(0.65f, 0.75f, 0.6f, 0.85f)),
@@ -105,7 +105,7 @@ internal class RequestModifier
         [RandoProgressionType.Wings] = new(["Monarch_Wings"], [], new(0.1f, 0.2f), new(0.35f, 0.5f), new(0.65f, 0.8f), new(0.8f, 0.9f)),
     };
 
-    private static Dictionary<string, ShopData> SHOP_DATA = new()
+    private static readonly Dictionary<string, ShopData> SHOP_DATA = new()
     {
         ["Iselda"] = new(1, (100, 200)),
         ["Leg_Eater"] = new(2, (200, 300)),

@@ -1,6 +1,4 @@
 ﻿using ItemChanger;
-using PurenailCore.SystemUtil;
-using RandomizerCore;
 using RandomizerMod.RC;
 
 namespace UnRando.Rando;

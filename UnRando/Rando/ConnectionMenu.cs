@@ -7,7 +7,6 @@ using PurenailCore.SystemUtil;
 using RandomizerMod.Menu;
 using RandoSettingsManager;
 using System.Collections.Generic;
-using System.Linq;
 using static RandomizerMod.Localization;
 
 namespace UnRando.Rando;
@@ -34,10 +33,10 @@ internal class ConnectionMenu
         return true;
     }
 
-    private SmallButton entryButton;
-    private MenuElementFactory<RandomizationSettings> factory;
-    private MenuItem<bool> enableSettings;
-    private List<MenuItem<ProgressionSetting>> progressionSettings = [];
+    private readonly SmallButton entryButton;
+    private readonly MenuElementFactory<RandomizationSettings> factory;
+    private readonly MenuItem<bool> enableSettings;
+    private readonly List<MenuItem<ProgressionSetting>> progressionSettings = [];
 
     private RandomizationSettings Settings => UnRando.GS.RandoSettings;
 
@@ -58,7 +57,7 @@ internal class ConnectionMenu
 
         List<IMenuElement> children = [enableSettings];
         progressionSettings.ForEach(children.Add);
-        VerticalItemPanel panel = new(unRandoPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, SpaceParameters.VSPACE_MEDIUM, true, children.ToArray());
+        VerticalItemPanel panel = new(unRandoPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, SpaceParameters.VSPACE_MEDIUM, true, [.. children]);
 
         UpdateUI();
     }

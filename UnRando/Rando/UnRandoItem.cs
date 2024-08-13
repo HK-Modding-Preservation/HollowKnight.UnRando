@@ -2,6 +2,7 @@
 using ItemChanger.Placements;
 using ItemChanger.Tags;
 using ItemChanger.Util;
+using RecentItemsDisplay;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -55,7 +56,7 @@ internal class UnRandoCheck : AbstractItem
             {
                 var recentItems = item.AddTag<InteropTag>();
                 recentItems.Message = "RecentItems";
-                recentItems.Properties.Add("DisplaySource", scene);
+                recentItems.Properties.Add("DisplaySource", AreaName.LocalizedCleanAreaName(scene));
             }
 
             var tag = item.GetTag<PersistentItemTag>();

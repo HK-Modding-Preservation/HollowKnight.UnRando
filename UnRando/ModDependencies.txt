@@ -4,3 +4,4 @@ MenuChanger
 RandomizerCore
 RandoSettingsManager
 ItemChanger
+RecentItemsDisplay

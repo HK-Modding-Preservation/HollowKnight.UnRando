@@ -2,7 +2,7 @@
 using ItemChanger.Placements;
 using ItemChanger.Tags;
 using ItemChanger.Util;
-using RecentItemsDisplay;
+using Modding;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -40,6 +40,20 @@ internal class UnRandoCheck : AbstractItem
 
     private static AbstractItem Nothing() => Finder.GetItem("Lumafly_Escape")!;
 
+    private static bool? _recentItemsInstalled;
+    private static bool RecentItemsInstalled()
+    {
+        _recentItemsInstalled ??= ModHooks.GetMod("RecentItems") is Mod;
+        return _recentItemsInstalled.Value;
+    }
+
+    private static void AddRecentItemsTag(AbstractItem item, string scene)
+    {
+        var recentItems = item.AddTag<InteropTag>();
+        recentItems.Message = "RecentItems";
+        recentItems.Properties.Add("DisplaySource", RecentItemsDisplay.AreaName.LocalizedCleanAreaName(scene));
+    }
+
     public override void GiveImmediate(GiveInfo info)
     {
         var p = GetRealPlacement(true);
@@ -53,12 +67,7 @@ internal class UnRandoCheck : AbstractItem
         List<AbstractItem> toInsert = [];
         foreach (var item in items)
         {
-            if (scene != null)
-            {
-                var recentItems = item.AddTag<InteropTag>();
-                recentItems.Message = "RecentItems";
-                recentItems.Properties.Add("DisplaySource", AreaName.LocalizedCleanAreaName(scene));
-            }
+            if (scene != null && RecentItemsInstalled()) AddRecentItemsTag(item, scene);
 
             var tag = item.GetTag<PersistentItemTag>();
             if (tag != null && tag.Persistence == Persistence.SemiPersistent)
@@ -73,7 +82,13 @@ internal class UnRandoCheck : AbstractItem
         ItemUtility.GiveSequentially(items, p, info, () =>
         {
             callback?.Invoke(this);
-            checkPlacement.Items.InsertRange(0, toInsert);
+
+            if (checkPlacement is ShopPlacement shop)
+            {
+                toInsert.ForEach(i => shop.AddItemWithCost(i, 1));
+                shop.RemoveTags<MultiPreviewRecordTag>();
+            }
+            else checkPlacement.Items.InsertRange(0, toInsert);
         });
 
         // Null out the callback to prevent early control.

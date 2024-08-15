@@ -5,3 +5,4 @@ RandomizerCore
 RandoSettingsManager
 ItemChanger
 RecentItemsDisplay
+ItemSync

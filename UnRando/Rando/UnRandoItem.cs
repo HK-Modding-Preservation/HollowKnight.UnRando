@@ -4,6 +4,8 @@ using ItemChanger.Tags;
 using ItemChanger.Util;
 using Modding;
 using Mono.Security.Protocol.Tls;
+using PurenailCore.SystemUtil;
+using RandomizerCore.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -70,6 +72,22 @@ internal class UnRandoCheck : AbstractItem
             scene != null ? RecentItemsDisplay.AreaName.LocalizedCleanAreaName(scene) : RandomPlace());
     }
 
+    private static void RemoveItemSyncTags(IEnumerable<AbstractItem> items)
+    {
+        foreach (var item in items)
+        {
+            // TaggableObject should have a 'RemoveTag(tag)' function.
+            List<Tag> keep = [];
+            foreach (var tag in item.GetTags<IInteropTag>())
+            {
+                if (tag.Message != "SyncedItemTag") keep.Add((tag as Tag)!);
+            }
+
+            item.RemoveTags<IInteropTag>();
+            item.AddTags(keep);
+        }
+    }
+
     public override void GiveImmediate(GiveInfo info)
     {
         var p = GetRealPlacement(true);
@@ -80,6 +98,8 @@ internal class UnRandoCheck : AbstractItem
 
         // Place refillables on location.
         List<AbstractItem> items = new(p?.Items ?? [Nothing()]);
+        if (ModHooks.GetMod("ItemSync") is Mod) RemoveItemSyncTags(items);
+
         List<AbstractItem> toInsert = [];
         foreach (var item in items)
         {

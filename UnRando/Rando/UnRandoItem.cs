@@ -48,13 +48,6 @@ internal class UnRandoCheck : AbstractItem
         return _recentItemsInstalled.Value;
     }
 
-    private static void AddRecentItemsTag(AbstractItem item, string scene)
-    {
-        var recentItems = item.AddTag<InteropTag>();
-        recentItems.Message = "RecentItems";
-        recentItems.Properties.Add("DisplaySource", RecentItemsDisplay.AreaName.LocalizedCleanAreaName(scene));
-    }
-
     private static readonly List<string> RANDOM_PLACES = [
         "somewhere",
         "over there",
@@ -67,6 +60,15 @@ internal class UnRandoCheck : AbstractItem
     ];
 
     private static string RandomPlace() => RANDOM_PLACES[UnityEngine.Random.Range(0, RANDOM_PLACES.Count)];
+
+    private static void AddRecentItemsTag(AbstractItem item, string? scene)
+    {
+        var recentItems = item.AddTag<InteropTag>();
+        recentItems.Message = "RecentItems";
+        recentItems.Properties.Add(
+            "DisplaySource",
+            scene != null ? RecentItemsDisplay.AreaName.LocalizedCleanAreaName(scene) : RandomPlace());
+    }
 
     public override void GiveImmediate(GiveInfo info)
     {
@@ -81,7 +83,7 @@ internal class UnRandoCheck : AbstractItem
         List<AbstractItem> toInsert = [];
         foreach (var item in items)
         {
-            if (RecentItemsInstalled()) AddRecentItemsTag(item, scene ?? RandomPlace());
+            if (RecentItemsInstalled()) AddRecentItemsTag(item, scene);
 
             var tag = item.GetTag<PersistentItemTag>();
             if (tag != null && tag.Persistence == Persistence.SemiPersistent)

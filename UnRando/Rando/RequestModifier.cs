@@ -126,7 +126,7 @@ internal class RequestModifier
         ["Salubra_(Requires_Charms)"] = new(3, (350, 600)),
         ["Seer"] = new(4, "ESSENCE"),
         ["Sly"] = new(1, (100, 200)),
-        ["Sly_(Key)"] = new(1, (200, 300)),
+        ["Sly_(Key)"] = new(2, (350, 600)),
     };
 
     private static CostDef[]? GetVanillaCosts(string loc, System.Random r)

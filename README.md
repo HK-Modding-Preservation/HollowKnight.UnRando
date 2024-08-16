@@ -24,9 +24,9 @@ UnRando is not compatible with MultiWorld (yet). It may not work well with with 
 
 ## Details
 
-Shops are hard-coded to only contain a fixed number of checks for balance. Iselda always has 1 item, all other shops (Sly+key and Salubra+charms count as separate shops) have 2 items.
+Shops are hard-coded to only contain a fixed number of checks for balance. Sly, Leg Eater, Salubra and Iselda each sell exactly one item for geo only. Salubra sells 3 more items at specific charm counts, Sly sells 2 more items with shop key, and non-geo shops like Seer, Jiji, and Grubfather "sell" exactly 4 items each.
 
-Sometimes there are more items to obtain than there are locations to find them at, in which case UnRando will stack additional items into the same check(s) to compensate. This means you may sometimes see multilple items for sale in a single slot at a shop.
+Sometimes there are more items to obtain than there are locations to find them at, in which case UnRando will stack additional items into the same check(s) to compensate. This means you may sometimes see multiple items for sale in a single slot at a shop.
 
 Lifeblood and Soul refills, once obtained, become permanently located wherever they were obtained. This means that if you see lifeblood at a shop, stag, etc., you can choose not to purchase it, and instead do another check first, knowing that it *will* be lifeblood and the lifeblood will be forever renewable at that location. Use this info wisely.
 

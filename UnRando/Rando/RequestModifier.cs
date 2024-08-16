@@ -121,7 +121,7 @@ internal class RequestModifier
         ["Egg_Shop"] = new(4, "RANCIDEGGS"),
         ["Grubfather"] = new(4, "GRUBS"),
         ["Iselda"] = new(1, (100, 200)),
-        ["Leg_Eater"] = new(2, (200, 400)),
+        ["Leg_Eater"] = new(1, (150, 250)),
         ["Salubra"] = new(1, (100, 300)),
         ["Salubra_(Requires_Charms)"] = new(3, (350, 600)),
         ["Seer"] = new(4, "ESSENCE"),

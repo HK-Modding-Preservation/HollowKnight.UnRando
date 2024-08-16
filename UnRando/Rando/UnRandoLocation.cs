@@ -1,4 +1,6 @@
-﻿using ItemChanger.Locations;
+﻿using ItemChanger;
+using ItemChanger.Locations;
+using ItemChanger.Tags;
 using RandomizerMod.RandomizerData;
 using RandomizerMod.RC;
 
@@ -29,6 +31,13 @@ internal class UnRandoLocation : AutoLocation
             };
             return def;
         };
+    }
+
+    public override AbstractPlacement Wrap()
+    {
+        var placement = base.Wrap();
+        placement.AddTag<CompletionWeightTag>().Weight = 0;
+        return placement;
     }
 
     protected override void OnLoad() { }

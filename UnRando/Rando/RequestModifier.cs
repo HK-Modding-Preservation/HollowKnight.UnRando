@@ -1,4 +1,5 @@
 ﻿using ItemChanger;
+using ItemChanger.Locations;
 using RandomizerCore;
 using RandomizerMod.RandomizerData;
 using RandomizerMod.RC;
@@ -82,6 +83,7 @@ internal record ProgressionData
 
 internal record ShopData
 {
+    public readonly string costType;
     public readonly int lowCost;
     public readonly int highCost;
     public readonly int itemCount;
@@ -89,7 +91,16 @@ internal record ShopData
     public ShopData(int itemCount, (int, int) costs)
     {
         this.itemCount = itemCount;
+        costType = "GEO";
         (lowCost, highCost) = costs;
+    }
+
+    public ShopData(int itemCount, string costType)
+    {
+        this.itemCount = itemCount;
+        this.costType = costType;
+        lowCost = 1;
+        highCost = 1;
     }
 }
 
@@ -107,17 +118,20 @@ internal class RequestModifier
 
     private static readonly Dictionary<string, ShopData> SHOP_DATA = new()
     {
+        ["Egg_Shop"] = new(4, "RANCIDEGGS"),
+        ["Grubfather"] = new(4, "GRUBS"),
         ["Iselda"] = new(1, (100, 200)),
-        ["Leg_Eater"] = new(2, (200, 300)),
-        ["Salubra"] = new(2, (100, 300)),
-        ["Salubra_(Requires_Charms)"] = new(2, (250, 450)),
-        ["Sly"] = new(2, (150, 350)),
+        ["Leg_Eater"] = new(2, (200, 400)),
+        ["Salubra"] = new(1, (100, 300)),
+        ["Salubra_(Requires_Charms)"] = new(3, (350, 600)),
+        ["Seer"] = new(4, "ESSENCE"),
+        ["Sly"] = new(1, (100, 200)),
         ["Sly_(Key)"] = new(2, (350, 600)),
     };
 
     private static CostDef[]? GetVanillaCosts(string loc, System.Random r)
     {
-        if (SHOP_DATA.TryGetValue(loc, out var data)) return [new CostDef("GEO", r.Next(data.lowCost, data.highCost + 1))];
+        if (SHOP_DATA.TryGetValue(loc, out var data)) return [new CostDef(data.costType, r.Next(data.lowCost, data.highCost + 1))];
         return [];
     }
 
@@ -159,6 +173,7 @@ internal class RequestModifier
 
                 var count = igb.Locations.GetCount(loc);
                 if (SHOP_DATA.TryGetValue(loc, out var data)) count = System.Math.Min(count, data.itemCount);
+                else if (Finder.GetLocation(loc) is CustomShopLocation) count = 4;
 
                 subTotal += count;
                 for (int i = 0; i < count; i++) rb.AddToPreplaced(new VanillaDef(nameof(UnRandoCheck), loc, GetVanillaCosts(loc, r)));

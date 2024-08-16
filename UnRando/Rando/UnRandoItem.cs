@@ -4,6 +4,8 @@ using ItemChanger.Tags;
 using ItemChanger.Util;
 using Modding;
 using Mono.Security.Protocol.Tls;
+using PurenailCore.SystemUtil;
+using RandomizerCore.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -48,13 +50,6 @@ internal class UnRandoCheck : AbstractItem
         return _recentItemsInstalled.Value;
     }
 
-    private static void AddRecentItemsTag(AbstractItem item, string scene)
-    {
-        var recentItems = item.AddTag<InteropTag>();
-        recentItems.Message = "RecentItems";
-        recentItems.Properties.Add("DisplaySource", RecentItemsDisplay.AreaName.LocalizedCleanAreaName(scene));
-    }
-
     private static readonly List<string> RANDOM_PLACES = [
         "somewhere",
         "over there",
@@ -68,6 +63,31 @@ internal class UnRandoCheck : AbstractItem
 
     private static string RandomPlace() => RANDOM_PLACES[UnityEngine.Random.Range(0, RANDOM_PLACES.Count)];
 
+    private static void AddRecentItemsTag(AbstractItem item, string? scene)
+    {
+        var recentItems = item.AddTag<InteropTag>();
+        recentItems.Message = "RecentItems";
+        recentItems.Properties.Add(
+            "DisplaySource",
+            scene != null ? RecentItemsDisplay.AreaName.LocalizedCleanAreaName(scene) : RandomPlace());
+    }
+
+    private static void RemoveItemSyncTags(IEnumerable<AbstractItem> items)
+    {
+        foreach (var item in items)
+        {
+            // TaggableObject should have a 'RemoveTag(tag)' function.
+            List<Tag> keep = [];
+            foreach (var tag in item.GetTags<IInteropTag>())
+            {
+                if (tag.Message != "SyncedItemTag") keep.Add((tag as Tag)!);
+            }
+
+            item.RemoveTags<IInteropTag>();
+            item.AddTags(keep);
+        }
+    }
+
     public override void GiveImmediate(GiveInfo info)
     {
         var p = GetRealPlacement(true);
@@ -78,10 +98,12 @@ internal class UnRandoCheck : AbstractItem
 
         // Place refillables on location.
         List<AbstractItem> items = new(p?.Items ?? [Nothing()]);
+        if (ModHooks.GetMod("ItemSync") is Mod) RemoveItemSyncTags(items);
+
         List<AbstractItem> toInsert = [];
         foreach (var item in items)
         {
-            if (RecentItemsInstalled()) AddRecentItemsTag(item, scene ?? RandomPlace());
+            if (RecentItemsInstalled()) AddRecentItemsTag(item, scene);
 
             var tag = item.GetTag<PersistentItemTag>();
             if (tag != null && tag.Persistence == Persistence.SemiPersistent)

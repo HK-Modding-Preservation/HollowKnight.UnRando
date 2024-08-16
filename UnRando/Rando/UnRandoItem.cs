@@ -72,20 +72,17 @@ internal class UnRandoCheck : AbstractItem
             scene != null ? RecentItemsDisplay.AreaName.LocalizedCleanAreaName(scene) : RandomPlace());
     }
 
-    private static void RemoveItemSyncTags(IEnumerable<AbstractItem> items)
+    private static void RemoveItemSyncTags(TaggableObject obj)
     {
-        foreach (var item in items)
+        // TaggableObject should have a 'RemoveTag(tag)' function.
+        List<Tag> keep = [];
+        foreach (var tag in obj.GetTags<IInteropTag>())
         {
-            // TaggableObject should have a 'RemoveTag(tag)' function.
-            List<Tag> keep = [];
-            foreach (var tag in item.GetTags<IInteropTag>())
-            {
-                if (tag.Message != "SyncedItemTag") keep.Add((tag as Tag)!);
-            }
-
-            item.RemoveTags<IInteropTag>();
-            item.AddTags(keep);
+            if (tag.Message != "SyncedItemTag") keep.Add((tag as Tag)!);
         }
+
+        obj.RemoveTags<IInteropTag>();
+        obj.AddTags(keep);
     }
 
     public override void GiveImmediate(GiveInfo info)
@@ -96,15 +93,20 @@ internal class UnRandoCheck : AbstractItem
         var checkPlacement = ItemChanger.Internal.Ref.Settings.Placements[GetTag<UnRandoPlacementTag>()!.PlacementName!];
         var scene = (checkPlacement as IPrimaryLocationPlacement)?.Location.sceneName;
 
-        // Place refillables on location.
+        // Remove item sync tags for the actual items.
         List<AbstractItem> items = new(p?.Items ?? [Nothing()]);
-        if (ModHooks.GetMod("ItemSync") is Mod) RemoveItemSyncTags(items);
+        if (ModHooks.GetMod("ItemSyncMod") is Mod)
+        {
+            items.ForEach(RemoveItemSyncTags);
+            if (p != null) RemoveItemSyncTags(p);
+        }
 
         List<AbstractItem> toInsert = [];
         foreach (var item in items)
         {
             if (RecentItemsInstalled()) AddRecentItemsTag(item, scene);
 
+            // Place refillables on location.
             var tag = item.GetTag<PersistentItemTag>();
             if (tag != null && tag.Persistence == Persistence.SemiPersistent)
             {

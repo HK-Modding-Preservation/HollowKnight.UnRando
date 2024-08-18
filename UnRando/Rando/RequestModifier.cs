@@ -131,7 +131,7 @@ internal class RequestModifier
 
     private static CostDef[]? GetVanillaCosts(string loc, System.Random r)
     {
-        if (SHOP_DATA.TryGetValue(loc, out var data)) return [new CostDef(data.costType, r.Next(data.lowCost, data.highCost + 1))];
+        if (SHOP_DATA.TryGetValue(loc, out var data) && data.costType == "GEO") return [new CostDef(data.costType, r.Next(data.lowCost, data.highCost + 1))];
         return [];
     }
 

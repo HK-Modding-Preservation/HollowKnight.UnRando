@@ -12,22 +12,12 @@ internal class LogicPatcher
 
     internal static void Setup() => RCData.RuntimeLogicOverride.Subscribe(1000f, PatchLogic);
 
-    private static void CheckSplitGroupSettings(SplitGroupSettings settings)
-    {
-        if (settings.RandomizeOnStart) throw new System.ArgumentException("UnRando does not support SplitGroup.RandomizeOnStart");
-
-        foreach (var field in SplitGroupSettings.IntFields.Values)
-        {
-            int value = (int)field.GetValue(settings);
-            if (value != -1) throw new System.ArgumentException($"UnRando does not support Split Groups ({field.Name} ({value}) != -1)");
-        }
-    }
-
     private static void PatchLogic(GenerationSettings gs, LogicManagerBuilder lmb)
     {
         if (!RandoInterop.IsEnabled) return;
 
-        CheckSplitGroupSettings(gs.SplitGroupSettings);
+        if (gs.SplitGroupSettings.RandomizeOnStart)
+            throw new System.ArgumentException("UnRando does not support SplitGroup.RandomizeOnStart");
 
         var checkCount = lmb.GetOrAddTerm(UNRANDO_CHECK_COUNT, TermType.Int);
         lmb.AddItem(new CappedItem(nameof(UnRandoCheck), [new(checkCount, 1)], new(checkCount, int.MaxValue)));

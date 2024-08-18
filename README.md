@@ -1,4 +1,4 @@
-# UnRando
+﻿# UnRando
 
 A [Randomizer 4](https://github.com/homothetyhk/RandomizerMod) connection which randomizes items by check count only, instead of location.
 
@@ -6,15 +6,11 @@ This connection greatly reduces the rng of randomizer races, allowing "check vel
 
 ## Settings
 
-UnRando allows explicitly setting the approximate progression depth of major movement items.
-
-Progression can be set to 'random' (unmanaged), 'early', 'average', 'late', or 'very late'. The latter 4 settings will force progression to a specific check number relative to the total number of checks, guaranteeing early or late discovery as requested.
-
-## Recommendations
-
-UnRando is not compatible with split groups by its very nature, so you must turn them all off.
+UnRando only works on the default split group (-1), it does not modify other split groups. This allows you to put grubs, etc., into a split group.
 
 Dupes are allowed but generally break the premise of UnRando, so it is recommended to turn dupes off. They will be irrelevant most of the time anyways.
+
+Progression can be set to 'random' (unmanaged), 'early', 'average', 'late', or 'very late'. The latter 4 settings will force progression to a specific check number relative to the total number of checks, guaranteeing early or late discovery as requested.
 
 ## Integrations
 

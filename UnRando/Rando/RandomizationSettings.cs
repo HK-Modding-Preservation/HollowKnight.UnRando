@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using MenuChanger.Attributes;
+using System.Collections.Generic;
 
 namespace UnRando.Rando;
 

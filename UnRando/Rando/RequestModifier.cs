@@ -145,6 +145,8 @@ internal class RequestModifier
 
         foreach (var igb in rb.EnumerateItemGroups())
         {
+            if (igb.label.StartsWith(RBConsts.SplitGroupPrefix)) continue;
+
             igb.LocationPadder = (factory, count) =>
             {
                 if (shufflerHolder.Count == 0)
@@ -195,6 +197,8 @@ internal class RequestModifier
 
         foreach (var igb in rb.EnumerateItemGroups())
         {
+            if (igb.label.StartsWith(RBConsts.SplitGroupPrefix)) continue;
+
             foreach (var entry in UnRando.GS.RandoSettings.ProgressionDict()) PROGRESSION_DATA[entry.Key].Apply(entry.Value, rb, igb, totalHolder[0], r);
         }
     }

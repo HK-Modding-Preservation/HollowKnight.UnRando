@@ -1,4 +1,5 @@
 ﻿using ItemChanger;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,10 @@ namespace UnRando.Rando;
 
 internal class MultiUIDef : UIDef
 {
-    private readonly List<UIDef> uiDefs;
+    public readonly List<UIDef> uiDefs;
+
+    [JsonConstructor]
+    private MultiUIDef() { }
 
     internal MultiUIDef(List<UIDef> uiDefs) { this.uiDefs = new(uiDefs); }
 

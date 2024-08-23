@@ -57,7 +57,7 @@ internal record ProgressionData
         ProgressionSpread? spread = setting switch { ProgressionSetting.Random => null, ProgressionSetting.Early => early, ProgressionSetting.Average => average, ProgressionSetting.Late => late, ProgressionSetting.VeryLate => veryLate, _ => null };
         if (spread == null) return;
 
-        var (min, max) = (splitItemNames.Any(n => igb.Items.GetCount(n) > 0)) ? (spread.splitMin, spread.splitMax) : (spread.min, spread.max);
+        var (min, max) = splitItemNames.Any(n => igb.Items.GetCount(n) > 0) ? (spread.splitMin, spread.splitMax) : (spread.min, spread.max);
 
         foreach (var item in itemNames) MaybePlace(rb, igb, item, min, max, totalLocs, r);
         foreach (var item in splitItemNames) MaybePlace(rb, igb, item, min, max, totalLocs, r);
@@ -111,7 +111,7 @@ internal class RequestModifier
     private static readonly Dictionary<RandoProgressionType, ProgressionData> PROGRESSION_DATA = new()
     {
         [RandoProgressionType.Dash] = new(["Mothwing_Cloak"], ["Left_Mothwing_Cloak", "Right_Mothwing_Cloak"], new(0, 0.15f, 0, 0.35f), new(0.1f, 0.2f, 0.1f, 0.3f), new(0.35f, 0.5f, 0.3f, 0.55f), new(0.65f, 0.85f, 0.6f, 0.9f)),
-        [RandoProgressionType.Claw] = new(["Mantis_Claw"], ["Left_Mantis_Claw", "Right_Mantis_Claw"], new(0.05f, 0.2f, 0.05f, 0.4f), new(0.15f, 0.3f, 0.1f, 0.5f), new(0.5f, 0.7f, 0.4f, 0.75f), new(0.65f, 0.75f, 0.6f, 0.85f)),
+        [RandoProgressionType.Claw] = new(["Mantis_Claw"], ["Left_Mantis_Claw", "Right_Mantis_Claw"], new(0.05f, 0.2f, 0.05f, 0.4f), new(0.15f, 0.3f, 0.1f, 0.5f), new(0.4f, 0.55f, 0.35f, 0.65f), new(0.55f, 0.65f, 0.5f, 0.75f)),
         [RandoProgressionType.CDash] = new(["Crystal_Heart"], ["Left_Crystal_Heart", "Right_Crystal_Heart"], new(0.05f, 0.2f, 0.05f, 0.4f), new(0.3f, 0.45f, 0.2f, 0.55f), new(0.5f, 0.65f, 0.4f, 0.75f), new(0.65f, 0.85f, 0.5f, 0.9f)),
         [RandoProgressionType.Wings] = new(["Monarch_Wings"], [], new(0.1f, 0.2f), new(0.35f, 0.5f), new(0.65f, 0.8f), new(0.8f, 0.9f)),
     };

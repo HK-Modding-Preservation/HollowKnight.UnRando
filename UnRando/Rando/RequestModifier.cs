@@ -120,9 +120,15 @@ internal class RequestModifier
 {
     internal static void Setup() => RequestBuilder.OnUpdate.Subscribe(1000f, ApplyUnRando);
 
+    private static readonly Dictionary<string, int> CLOAK_CAPS = new()
+    {
+        ["Mothwing_Cloak"] = 1,
+        ["Shade_Cloak"] = 0,
+    };
+
     private static readonly Dictionary<RandoProgressionType, ProgressionData> PROGRESSION_DATA = new()
     {
-        [RandoProgressionType.Dash] = new(["Mothwing_Cloak"], ["Left_Mothwing_Cloak", "Right_Mothwing_Cloak"], new(0, 0.15f, 0, 0.35f, new() { ["Mothing_Cloak"] = 1 }), new(0.1f, 0.2f, 0.1f, 0.3f, new() { ["Mothing_Cloak"] = 1 }), new(0.35f, 0.5f, 0.3f, 0.55f), new(0.65f, 0.85f, 0.6f, 0.9f)),
+        [RandoProgressionType.Dash] = new(["Mothwing_Cloak", "Shade_Cloak"], ["Left_Mothwing_Cloak", "Right_Mothwing_Cloak"], new(0, 0.15f, 0, 0.35f, CLOAK_CAPS), new(0.1f, 0.2f, 0.1f, 0.3f, CLOAK_CAPS), new(0.35f, 0.5f, 0.3f, 0.55f), new(0.65f, 0.85f, 0.6f, 0.9f)),
         [RandoProgressionType.Claw] = new(["Mantis_Claw"], ["Left_Mantis_Claw", "Right_Mantis_Claw"], new(0.05f, 0.2f, 0.05f, 0.4f), new(0.15f, 0.3f, 0.1f, 0.5f), new(0.4f, 0.55f, 0.35f, 0.65f), new(0.55f, 0.65f, 0.5f, 0.75f)),
         [RandoProgressionType.CDash] = new(["Crystal_Heart"], ["Left_Crystal_Heart", "Right_Crystal_Heart"], new(0.05f, 0.2f, 0.05f, 0.4f), new(0.3f, 0.45f, 0.2f, 0.55f), new(0.5f, 0.65f, 0.4f, 0.75f), new(0.65f, 0.85f, 0.5f, 0.9f)),
         [RandoProgressionType.Wings] = new(["Monarch_Wings"], [], new(0.1f, 0.2f), new(0.35f, 0.5f), new(0.65f, 0.8f), new(0.8f, 0.9f)),

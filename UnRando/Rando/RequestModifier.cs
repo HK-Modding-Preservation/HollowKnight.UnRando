@@ -3,6 +3,7 @@ using ItemChanger.Locations;
 using RandomizerCore;
 using RandomizerMod.RandomizerData;
 using RandomizerMod.RC;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,6 +16,7 @@ internal record ProgressionSpread
 
     public readonly float splitMin;
     public readonly float splitMax;
+    public readonly Dictionary<string, int> itemCaps;
 
     public ProgressionSpread(float min, float max)
     {
@@ -22,14 +24,16 @@ internal record ProgressionSpread
         this.max = max;
         splitMin = min;
         splitMax = max;
+        itemCaps = [];
     }
 
-    public ProgressionSpread(float min, float max, float splitMin, float splitMax)
+    public ProgressionSpread(float min, float max, float splitMin, float splitMax, Dictionary<string, int>? itemCaps = null)
     {
         this.min = min;
         this.max = max;
         this.splitMin = splitMin;
         this.splitMax = splitMax;
+        this.itemCaps = new(itemCaps ?? []);
     }
 }
 
@@ -59,14 +63,21 @@ internal record ProgressionData
 
         var (min, max) = splitItemNames.Any(n => igb.Items.GetCount(n) > 0) ? (spread.splitMin, spread.splitMax) : (spread.min, spread.max);
 
-        foreach (var item in itemNames) MaybePlace(rb, igb, item, min, max, totalLocs, r);
-        foreach (var item in splitItemNames) MaybePlace(rb, igb, item, min, max, totalLocs, r);
+        foreach (var item in itemNames) MaybePlace(rb, igb, spread, item, min, max, totalLocs, r);
+        foreach (var item in splitItemNames) MaybePlace(rb, igb, spread, item, min, max, totalLocs, r);
     }
 
-    private void MaybePlace(RequestBuilder rb, ItemGroupBuilder igb, string item, float min, float max, int totalLocs, System.Random r)
+    private void MaybePlace(RequestBuilder rb, ItemGroupBuilder igb, ProgressionSpread spread, string item, float min, float max, int totalLocs, System.Random r)
     {
         int count = igb.Items.GetCount(item);
         if (count == 0) return;
+
+        int putBack = 0;
+        if (spread.itemCaps.TryGetValue(item, out var cap))
+        {
+            putBack = Math.Max(0, count - cap);
+            count = Math.Max(count, cap);
+        }
 
         igb.Items.RemoveAll(item);
         for (int i = 0; i < count; i++)
@@ -78,6 +89,7 @@ internal record ProgressionData
             UnRandoLocation loc = new(pos);
             rb.AddToPreplaced(item, loc.name);
         }
+        igb.Items.Set(item, putBack);
     }
 }
 
@@ -110,7 +122,7 @@ internal class RequestModifier
 
     private static readonly Dictionary<RandoProgressionType, ProgressionData> PROGRESSION_DATA = new()
     {
-        [RandoProgressionType.Dash] = new(["Mothwing_Cloak"], ["Left_Mothwing_Cloak", "Right_Mothwing_Cloak"], new(0, 0.15f, 0, 0.35f), new(0.1f, 0.2f, 0.1f, 0.3f), new(0.35f, 0.5f, 0.3f, 0.55f), new(0.65f, 0.85f, 0.6f, 0.9f)),
+        [RandoProgressionType.Dash] = new(["Mothwing_Cloak"], ["Left_Mothwing_Cloak", "Right_Mothwing_Cloak"], new(0, 0.15f, 0, 0.35f, new() { ["Mothing_Cloak"] = 1 }), new(0.1f, 0.2f, 0.1f, 0.3f, new() { ["Mothing_Cloak"] = 1 }), new(0.35f, 0.5f, 0.3f, 0.55f), new(0.65f, 0.85f, 0.6f, 0.9f)),
         [RandoProgressionType.Claw] = new(["Mantis_Claw"], ["Left_Mantis_Claw", "Right_Mantis_Claw"], new(0.05f, 0.2f, 0.05f, 0.4f), new(0.15f, 0.3f, 0.1f, 0.5f), new(0.4f, 0.55f, 0.35f, 0.65f), new(0.55f, 0.65f, 0.5f, 0.75f)),
         [RandoProgressionType.CDash] = new(["Crystal_Heart"], ["Left_Crystal_Heart", "Right_Crystal_Heart"], new(0.05f, 0.2f, 0.05f, 0.4f), new(0.3f, 0.45f, 0.2f, 0.55f), new(0.5f, 0.65f, 0.4f, 0.75f), new(0.65f, 0.85f, 0.5f, 0.9f)),
         [RandoProgressionType.Wings] = new(["Monarch_Wings"], [], new(0.1f, 0.2f), new(0.35f, 0.5f), new(0.65f, 0.8f), new(0.8f, 0.9f)),

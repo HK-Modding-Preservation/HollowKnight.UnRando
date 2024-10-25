@@ -5,6 +5,7 @@ using MenuChanger.MenuPanels;
 using Modding;
 using PurenailCore.SystemUtil;
 using RandomizerMod.Menu;
+using RandomizerMod.Settings;
 using RandoSettingsManager;
 using System.Collections.Generic;
 using static RandomizerMod.Localization;
@@ -35,8 +36,8 @@ internal class ConnectionMenu
 
     private readonly SmallButton entryButton;
     private readonly MenuElementFactory<RandomizationSettings> factory;
-    private readonly MenuItem<bool> enableSettings;
-    private readonly List<MenuItem<ProgressionSetting>> progressionSettings = [];
+    private readonly MenuItem<bool> enableSetting;
+    private readonly NumericEntryField<int> splitGroupSetting;
 
     private RandomizationSettings Settings => UnRando.GS.RandoSettings;
 
@@ -47,31 +48,30 @@ internal class ConnectionMenu
         entryButton.AddHideAndShowEvent(unRandoPage);
 
         factory = new(unRandoPage, Settings);
-        enableSettings = (factory.ElementLookup[nameof(RandomizationSettings.Enabled)] as MenuItem<bool>)!;
-        enableSettings.OnClick += UpdateUI;
+        enableSetting = (factory.ElementLookup[nameof(RandomizationSettings.Enabled)] as MenuItem<bool>)!;
+        enableSetting.OnClick += UpdateUI;
+        splitGroupSetting = (factory.ElementLookup[nameof(RandomizationSettings.SplitGroup)] as NumericEntryField<int>)!;
 
-        factory.ElementLookup.Values.ForEach(v =>
-        {
-            if (v is MenuItem<ProgressionSetting> typed) progressionSettings.Add(typed);
-        });
-
-        List<IMenuElement> children = [enableSettings];
-        progressionSettings.ForEach(children.Add);
-        VerticalItemPanel panel = new(unRandoPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, SpaceParameters.VSPACE_MEDIUM, true, [.. children]);
-
+        VerticalItemPanel panel = new(unRandoPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, SpaceParameters.VSPACE_LARGE, true, [enableSetting, splitGroupSetting]);
         UpdateUI();
     }
 
     internal void UpdateUI()
     {
-        if (enableSettings.Value)
+        if (enableSetting.Value)
         {
-            progressionSettings.ForEach(m => m.Unlock());
+            splitGroupSetting.Label.Text.color = Colors.DEFAULT_COLOR;
+            splitGroupSetting.InputField.interactable = true;
+            splitGroupSetting.InputField.textComponent.color = Colors.DEFAULT_COLOR;
+
             entryButton.Text.color = Colors.TRUE_COLOR;
         }
         else
         {
-            progressionSettings.ForEach(m => m.Lock());
+            splitGroupSetting.Label.Text.color = Colors.FALSE_COLOR;
+            splitGroupSetting.InputField.interactable = false;
+            splitGroupSetting.InputField.textComponent.color = Colors.FALSE_COLOR;
+
             entryButton.Text.color = Colors.DEFAULT_COLOR;
         }
     }

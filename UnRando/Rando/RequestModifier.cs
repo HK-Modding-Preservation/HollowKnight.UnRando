@@ -9,90 +9,6 @@ using System.Linq;
 
 namespace UnRando.Rando;
 
-internal record ProgressionSpread
-{
-    public readonly float min;
-    public readonly float max;
-
-    public readonly float splitMin;
-    public readonly float splitMax;
-    public readonly Dictionary<string, int> itemCaps;
-
-    public ProgressionSpread(float min, float max)
-    {
-        this.min = min;
-        this.max = max;
-        splitMin = min;
-        splitMax = max;
-        itemCaps = [];
-    }
-
-    public ProgressionSpread(float min, float max, float splitMin, float splitMax, Dictionary<string, int>? itemCaps = null)
-    {
-        this.min = min;
-        this.max = max;
-        this.splitMin = splitMin;
-        this.splitMax = splitMax;
-        this.itemCaps = new(itemCaps ?? []);
-    }
-}
-
-internal record ProgressionData
-{
-    public readonly HashSet<string> itemNames;
-    public readonly HashSet<string> splitItemNames;
-    public readonly ProgressionSpread early;
-    public readonly ProgressionSpread average;
-    public readonly ProgressionSpread late;
-    public readonly ProgressionSpread veryLate;
-
-    public ProgressionData(HashSet<string> itemNames, HashSet<string> splitItemNames, ProgressionSpread early, ProgressionSpread average, ProgressionSpread late, ProgressionSpread veryLate)
-    {
-        this.itemNames = new(itemNames);
-        this.splitItemNames = new(splitItemNames);
-        this.early = early;
-        this.average = average;
-        this.late = late;
-        this.veryLate = veryLate;
-    }
-
-    internal void Apply(ProgressionSetting setting, RequestBuilder rb, ItemGroupBuilder igb, int totalLocs, System.Random r)
-    {
-        ProgressionSpread? spread = setting switch { ProgressionSetting.Random => null, ProgressionSetting.Early => early, ProgressionSetting.Average => average, ProgressionSetting.Late => late, ProgressionSetting.VeryLate => veryLate, _ => null };
-        if (spread == null) return;
-
-        var (min, max) = splitItemNames.Any(n => igb.Items.GetCount(n) > 0) ? (spread.splitMin, spread.splitMax) : (spread.min, spread.max);
-
-        foreach (var item in itemNames) MaybePlace(rb, igb, spread, item, min, max, totalLocs, r);
-        foreach (var item in splitItemNames) MaybePlace(rb, igb, spread, item, min, max, totalLocs, r);
-    }
-
-    private void MaybePlace(RequestBuilder rb, ItemGroupBuilder igb, ProgressionSpread spread, string item, float min, float max, int totalLocs, System.Random r)
-    {
-        int count = igb.Items.GetCount(item);
-        if (count == 0) return;
-
-        int putBack = 0;
-        if (spread.itemCaps.TryGetValue(item, out var cap))
-        {
-            putBack = Math.Max(0, count - cap);
-            count = Math.Max(count, cap);
-        }
-
-        igb.Items.RemoveAll(item);
-        for (int i = 0; i < count; i++)
-        {
-            int pos = (int)((min + r.NextDouble() * (max - min)) * totalLocs);
-            if (pos <= 0) pos = 1;
-            if (pos > totalLocs) pos = totalLocs;
-
-            UnRandoLocation loc = new(pos);
-            rb.AddToPreplaced(item, loc.name);
-        }
-        igb.Items.Set(item, putBack);
-    }
-}
-
 internal record ShopData
 {
     public readonly string costType;
@@ -119,20 +35,6 @@ internal record ShopData
 internal class RequestModifier
 {
     internal static void Setup() => RequestBuilder.OnUpdate.Subscribe(1000f, ApplyUnRando);
-
-    private static readonly Dictionary<string, int> CLOAK_CAPS = new()
-    {
-        ["Mothwing_Cloak"] = 1,
-        ["Shade_Cloak"] = 0,
-    };
-
-    private static readonly Dictionary<RandoProgressionType, ProgressionData> PROGRESSION_DATA = new()
-    {
-        [RandoProgressionType.Dash] = new(["Mothwing_Cloak", "Shade_Cloak"], ["Left_Mothwing_Cloak", "Right_Mothwing_Cloak"], new(0, 0.15f, 0, 0.35f, CLOAK_CAPS), new(0.1f, 0.2f, 0.1f, 0.3f, CLOAK_CAPS), new(0.35f, 0.5f, 0.3f, 0.55f), new(0.65f, 0.85f, 0.6f, 0.9f)),
-        [RandoProgressionType.Claw] = new(["Mantis_Claw"], ["Left_Mantis_Claw", "Right_Mantis_Claw"], new(0.05f, 0.2f, 0.05f, 0.4f), new(0.15f, 0.3f, 0.1f, 0.5f), new(0.4f, 0.55f, 0.35f, 0.65f), new(0.55f, 0.65f, 0.5f, 0.75f)),
-        [RandoProgressionType.CDash] = new(["Crystal_Heart"], ["Left_Crystal_Heart", "Right_Crystal_Heart"], new(0.05f, 0.2f, 0.05f, 0.4f), new(0.3f, 0.45f, 0.2f, 0.55f), new(0.5f, 0.65f, 0.4f, 0.75f), new(0.65f, 0.85f, 0.5f, 0.9f)),
-        [RandoProgressionType.Wings] = new(["Monarch_Wings"], [], new(0.1f, 0.2f), new(0.35f, 0.5f), new(0.65f, 0.8f), new(0.8f, 0.9f)),
-    };
 
     private static readonly Dictionary<string, ShopData> SHOP_DATA = new()
     {
@@ -163,7 +65,8 @@ internal class RequestModifier
 
         foreach (var igb in rb.EnumerateItemGroups())
         {
-            if (igb.label.StartsWith(RBConsts.SplitGroupPrefix)) continue;
+            var splitGroup = GetSplitGroup(igb.label);
+            if (splitGroup != UnRando.GS.RandoSettings.SplitGroup) continue;
 
             igb.LocationPadder = (factory, count) =>
             {
@@ -212,12 +115,11 @@ internal class RequestModifier
             }
             totalHolder[0] += subTotal;
         }
+    }
 
-        foreach (var igb in rb.EnumerateItemGroups())
-        {
-            if (igb.label.StartsWith(RBConsts.SplitGroupPrefix)) continue;
-
-            foreach (var entry in UnRando.GS.RandoSettings.ProgressionDict()) PROGRESSION_DATA[entry.Key].Apply(entry.Value, rb, igb, totalHolder[0], r);
-        }
+    private static int GetSplitGroup(string label)
+    {
+        if (!label.StartsWith(RBConsts.SplitGroupPrefix)) return -1;
+        else return int.Parse(label.Substring(RBConsts.SplitGroupPrefix.Length));
     }
 }

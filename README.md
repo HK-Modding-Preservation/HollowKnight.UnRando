@@ -6,11 +6,7 @@ This connection greatly reduces the rng of randomizer races, allowing "check vel
 
 ## Settings
 
-UnRando only works on the default split group (-1), it does not modify other split groups. This allows you to put grubs, etc., into a split group.
-
-Dupes are allowed but generally break the premise of UnRando, so it is recommended to turn dupes off. They will be irrelevant most of the time anyways.
-
-Progression can be set to 'random' (unmanaged), 'early', 'average', 'late', or 'very late'. The latter 4 settings will force progression to a specific check number relative to the total number of checks, guaranteeing early or late discovery as requested.
+UnRando works on the default split group (-1) by default, but can be changed to work a different split group as well. Only a single split group can be unrando'd.
 
 ## Integrations
 
